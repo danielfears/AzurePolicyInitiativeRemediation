@@ -13,13 +13,15 @@ Before running this script, ensure that you have:
 ## Usage
 
 1. **Define Policy Initiatives**:
-   Update the `$policyInitiativeAssignmentNames` array at the top of the script to include the names of the policy initiatives you want to remediate.
+   Update the `$policyInitiativeAssignmentNames` array and `$policyInitiativeDefinitionName` variable at the top of the script to include the names of the policy initiatives you want to remediate.
 
     ```powershell
     $policyInitiativeAssignmentNames = @(
         "Initiative1",
         "Initiative2"
     )
+
+    $policyInitiativeDefinitionName = "InitiativeDefinitionName"
     ```
 
 2. **Run the Script**:
