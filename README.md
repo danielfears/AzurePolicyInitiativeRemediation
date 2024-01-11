@@ -1,6 +1,6 @@
 # Azure Policy Initiative Remediation Script
 
-This PowerShell script is designed to automate the process of remediating Azure policy initiatives across multiple subscriptions in an Azure tenant. It specifically targets predefined policy initiatives, checks for their assignments in each subscription, and initiates a remediation process where applicable.
+This PowerShell script is designed to automate the process of remediating Azure policy initiatives across multiple subscriptions in an Azure tenant. It specifically targets predefined policy initiatives, checks for their assignments in each subscription, and initiates a remediation process where applicable. The script has been enhanced to support running these remediation tasks as background jobs, allowing for non-blocking execution.
 
 ## Prerequisites
 
@@ -34,7 +34,23 @@ Before running this script, ensure that you have:
 3. **Authenticate**:
    If you are not already authenticated, the script will prompt you to enter your Azure credentials.
 
-4. **Monitor Output**:
+4. **Running as a Background Task**:
+   The script automatically starts the remediation jobs as background tasks. You can monitor these tasks using PowerShell job commands:
+   
+   - To check the status of all background jobs, use:
+     ```powershell
+     Get-Job
+     ```
+   - To receive the output of a completed job, use:
+     ```powershell
+     Receive-Job -Id <job-id>
+     ```
+   - To remove a finished job, use:
+     ```powershell
+     Remove-Job -Id <job-id>
+     ```
+
+5. **Monitor Output**:
    The script provides output in the PowerShell console, detailing each step of the process, including any found policy assignments and the initiation of remediation jobs.
 
 ## Important Notes

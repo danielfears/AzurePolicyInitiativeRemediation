@@ -65,7 +65,7 @@ foreach ($subscription in $subscriptions) {
                     Start-Sleep -Seconds 1
 
                     # Create the remediation job - uncomment the line below to create the remediation job
-                    # Start-AzPolicyRemediation -Name "Remediation-"$($policyDefinition.PolicyDefinitionId) + "-" + $($assignment.PolicyAssignmentId) + "-" + (Get-Date -Format "yyyyMMddHHmmss") -PolicyAssignmentId $assignment.PolicyAssignmentId -PolicyDefinitionReferenceId $policyDefinition.policyDefinitionReferenceId
+                    # Start-AzPolicyRemediation -Name "Remediation-"$($policyDefinition.PolicyDefinitionId) + "-" + $($assignment.PolicyAssignmentId) + "-" + (Get-Date -Format "yyyyMMddHHmmss") -PolicyAssignmentId $assignment.PolicyAssignmentId -PolicyDefinitionReferenceId $policyDefinition.policyDefinitionReferenceId -AsJob
 
                 }
             }
