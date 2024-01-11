@@ -1,8 +1,10 @@
 # Define the names of the policy initiatives to remediate
 $policyInitiativeAssignmentNames = @(
-    "Initiative1",
-    "Initiative2"
-    )
+    "InitiativeAssignment1",
+    "InitiativeAssignment2"
+)
+
+$policyInitiativeDefinitionName = "InitiativeDefinitionName"
 
 # Check for existing Azure session
 $context = Get-AzContext -ErrorAction SilentlyContinue
@@ -23,7 +25,7 @@ if ($null -eq $subscriptions) {
 }
 
 # Storing list of policies for initiative remediation
-$policySetDefinition = Get-AzPolicySetDefinition | Where-Object { $_.Name -eq "Diagnostics policy initiative" }
+$policySetDefinition = Get-AzPolicySetDefinition | Where-Object { $_.Name -eq $policyInitiativeDefinitionName }
 $policySetDefinition = $policySetDefinition.Properties.PolicyDefinitions
 
 foreach ($subscription in $subscriptions) {
