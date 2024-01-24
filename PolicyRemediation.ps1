@@ -1,10 +1,10 @@
 # Define the names of the policy initiatives to remediate
 $policyInitiativeAssignmentNames = @(
-    "InitiativeAssignment1",
-    "InitiativeAssignment2"
+    "AssignmentName1",
+    "AssignmentName2"
 )
 
-$policyInitiativeDefinitionName = "InitiativeDefinitionName"
+$policyInitiativeDefinitionName = "InitiativeName"
 
 # Check for existing Azure session
 $context = Get-AzContext -ErrorAction SilentlyContinue
@@ -31,7 +31,8 @@ $policySetDefinition = $policySetDefinition.Properties.PolicyDefinitions
 foreach ($subscription in $subscriptions) {
 
     # Select the subscription
-    Select-AzSubscription -SubscriptionId $subscription.Id
+    Select-AzSubscription -SubscriptionId $subscription.Id > $null
+    Write-Host "Selected subscription: $($subscription.Name)"
 
     # Retrieve all policy assignments
     $PolicyAssignments = Get-AzPolicyAssignment -WarningAction SilentlyContinue | Select-Object *, 
@@ -53,7 +54,7 @@ foreach ($subscription in $subscriptions) {
                 foreach ($policyDefinition in $policySetDefinition) {
                     
                     # Create a unique name for the remediation job with the policy initiative assignment name and the current date/time
-                    $remediationName = "Remediation-" + $policyInitiativeAssignmentName + "-" + (Get-Date -Format "yyyyMMddHHmmssfff")
+                    $remediationName = "Remediation-" + $($policyDefinition.PolicyDefinitionId.Split("/")[-1]) + "-" + (Get-Date -Format "yyyyMMddHHmmssfff")
 
                     Write-Host ""
                     Write-Host "Remediating the following:"
@@ -62,16 +63,20 @@ foreach ($subscription in $subscriptions) {
                     Write-Host "Policy Name: $($policyDefinition.PolicyDefinitionId.Split("/")[-1])"
                     Write-Host "Policy Reference ID: $($policyDefinition.policyDefinitionReferenceId)"
                     Write-Host "Remediation Name: $($remediationName)"
-                    Start-Sleep -Seconds 1
 
                     # Create the remediation job - uncomment the line below to create the remediation job
-                    # Start-AzPolicyRemediation -Name "Remediation-"$($policyDefinition.PolicyDefinitionId) + "-" + $($assignment.PolicyAssignmentId) + "-" + (Get-Date -Format "yyyyMMddHHmmss") -PolicyAssignmentId $assignment.PolicyAssignmentId -PolicyDefinitionReferenceId $policyDefinition.policyDefinitionReferenceId -AsJob
+                    Start-AzPolicyRemediation -Name $remediationName -PolicyAssignmentId $assignment.PolicyAssignmentId -PolicyDefinitionReferenceId $policyDefinition.policyDefinitionReferenceId -AsJob
+                    
+                    # Output to console what the command would be that runs
+                    # Write-Host "Start-AzPolicyRemediation -Name $($remediationName) -PolicyAssignmentId $($assignment.PolicyAssignmentId) -PolicyDefinitionReferenceId $($policyDefinition.policyDefinitionReferenceId) -AsJob"
 
                 }
             }
         } else {
-            Write-Host "No policy assignment found for initiative '$policyInitiativeAssignmentName' in Subscription '$($subscription.Name)'."
+            Write-Warning "No policy assignment found for initiative '$policyInitiativeAssignmentName' in Subscription '$($subscription.Name)'."
         }
     }
     Write-Host ""
 }
+
+Write-Host "Script completed."
