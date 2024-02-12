@@ -1,70 +1,81 @@
 # Azure Policy Initiative Remediation Script
 
-This PowerShell script is designed to automate the process of remediating Azure policy initiatives across multiple subscriptions in an Azure tenant. It specifically targets predefined policy initiatives, checks for their assignments in each subscription, and initiates a remediation process where applicable. The script has been enhanced to support running these remediation tasks as background jobs, allowing for non-blocking execution.
+This PowerShell script has been designed to automate the remediation of Azure policy initiatives, with the flexibility to target a single subscription or iterate across multiple subscriptions within an Azure tenant. It checks for policy initiative assignments and initiates remediation processes where applicable, leveraging a reusable function for efficient background execution.
 
 ## Prerequisites
 
-Before running this script, ensure that you have:
+Before executing this script, ensure that you have:
 
-- PowerShell installed on your machine.
-- Azure PowerShell module (`Az` module) installed. You can install it using `Install-Module -Name Az -AllowClobber -Scope CurrentUser`.
-- Appropriate permissions to access and manage Azure Policy assignments and remediations in your Azure tenant.
+- PowerShell installed on your system.
+- The Azure PowerShell module (`Az` module) installed. Install it using the command: `Install-Module -Name Az -AllowClobber -Scope CurrentUser`.
+- Necessary permissions to manage Azure Policy assignments and remediations within your Azure tenant.
 
-## Usage
+## Configuration
 
-1. **Define Policy Initiatives**:
-   Update the `$policyInitiativeAssignmentNames` array and `$policyInitiativeDefinitionName` variable at the top of the script to include the names of the policy initiatives you want to remediate.
+1. **Set Policy Initiatives**:
+   Modify the `$policyInitiativeAssignmentNames` array and `$policyInitiativeDefinitionName` variable at the beginning of the script to include the policy initiatives you aim to remediate.
 
     ```powershell
     $policyInitiativeAssignmentNames = @(
-        "Initiative1",
-        "Initiative2"
+        "policyInitiativeAssignmentName1",
+        "policyInitiativeAssignmentName2"
     )
-
-    $policyInitiativeDefinitionName = "InitiativeDefinitionName"
+    $policyInitiativeDefinitionName = "policyInitiativeDefinitionName"
     ```
 
-2. **Run the Script**:
-   Execute the script in a PowerShell session. This can be done by navigating to the directory containing the script and running:
+2. **Specify Subscription ID** (Optional):
+   To target a specific subscription, set the `$subscriptionId` variable. Leave it blank (`""`) to iterate through all subscriptions in the tenant.
+
+    ```powershell
+    $subscriptionId = "<Your-Subscription-ID>"
+    ```
+
+## Execution
+
+- **Authenticate with Azure**:
+  If not already authenticated, the script will prompt you for your Azure credentials when run.
+
+- **Run the Script**:
+  Navigate to the directory containing the script and execute it by running:
 
     ```powershell
     .\PolicyRemediation.ps1
     ```
 
-3. **Authenticate**:
-   If you are not already authenticated, the script will prompt you to enter your Azure credentials.
+## Monitoring and Managing Background Tasks
 
-4. **Running as a Background Task**:
-   The script automatically starts the remediation jobs as background tasks. You can monitor these tasks using PowerShell job commands:
-   
-   - To check the status of all background jobs, use:
-     ```powershell
-     Get-Job
-     ```
-   - To receive the output of a completed job, use:
-     ```powershell
-     Receive-Job -Id <job-id>
-     ```
-   - To remove a finished job, use:
-     ```powershell
-     Remove-Job -Id <job-id>
-     ```
+The script initiates remediation jobs as background tasks. Use PowerShell job commands to manage these tasks:
 
-5. **Monitor Output**:
-   The script provides output in the PowerShell console, detailing each step of the process, including any found policy assignments and the initiation of remediation jobs.
+- **Check status** of all background jobs:
+
+    ```powershell
+    Get-Job
+    ```
+
+- **Receive output** from a completed job:
+
+    ```powershell
+    Receive-Job -Id <job-id>
+    ```
+
+- **Remove** a finished job:
+
+    ```powershell
+    Remove-Job -Id <job-id>
+    ```
+
+## Output
+
+The script outputs each step of the remediation process to the PowerShell console, detailing found policy assignments and the initiation of remediation jobs.
 
 ## Important Notes
 
-- The script currently has a line commented out that would start the actual remediation process. This is intentional to avoid unintended changes. To enable the remediation, uncomment the following line:
+- The script is configured to automatically start the remediation process. Ensure you have reviewed and are comfortable with the actions it will take.
 
-    ```powershell
-    # Start-AzPolicyRemediation -Name "Remediation-"$($policyDefinition.PolicyDefinitionId) + "-" + $($assignment.PolicyAssignmentId) + "-" + (Get-Date -Format "yyyyMMddHHmmss") -PolicyAssignmentId $assignment.PolicyAssignmentId -PolicyDefinitionReferenceId $policyDefinition.policyDefinitionReferenceId
-    ```
+- Verify the correct setup of policy initiatives and definitions in your Azure environment prior to running the script.
 
-- Ensure that the policy initiatives and their respective definitions are correctly set up in your Azure environment before running this script.
-
-- This script assumes that you have the necessary permissions to view and manage policy assignments and remediations across the subscriptions in your Azure tenant.
+- Adequate permissions are required to view and manage policy assignments and remediations across your Azure tenant's subscriptions.
 
 ## Disclaimer
 
-This script is provided as-is, and it is recommended to test it in a non-production environment before using it in a production environment.
+This script is provided "as-is". It is recommended to test in a non-production environment before using it in production settings.
