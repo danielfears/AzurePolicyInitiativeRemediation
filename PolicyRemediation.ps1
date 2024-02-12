@@ -75,4 +75,5 @@ if (-not [string]::IsNullOrWhiteSpace($subscriptionId)) {
     }
 }
 
+Write-Host ""
 Write-Warning "Script completed."
