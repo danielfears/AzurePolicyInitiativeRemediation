@@ -1,4 +1,4 @@
-# Azure Policy Initiative Remediation Script
+# Azure Compliance Enforcement - Bulk Azure Policy Initiative Remediation (ACE-BAPIR)
 
 This PowerShell script automates the remediation of Azure policy initiatives, now offering expanded functionality to operate not just across subscriptions but also within Azure Management Groups. It locates policy initiative assignments and triggers remediation processes where necessary, employing a reusable function for efficient execution, both at the subscription level and across management group hierarchies.
 
