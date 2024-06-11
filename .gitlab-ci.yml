@@ -1,0 +1,62 @@
+default:
+  image: mcr.microsoft.com/azure-powershell:latest
+  before_script:
+    # list and attach tmux session using "tmux ls" and "tmux attach"
+    - echo Starting tmux session - enables pipeline debugging within containers...
+    - tmux new-session -d -s gitlab
+
+include:
+  - project: "gitlab/ci-templates"
+    file: "/powershell/powershell-generic-pipeline.gitlab-ci.yml"
+    ref: master
+
+variables:
+  TENANT:
+    description: "Select an environment to run the script in"
+    value: "DEV"
+    options:
+      - "DEV"
+      - "PROD"
+
+  POLICY_TYPE:
+    description: "Policy Type - Are you remediating a Policy Set/Initiative or an individual Policy?"
+    value: "PolicySet"
+    options:
+      - "PolicySet"
+      - "Policy - NYI"
+
+  POLICY_DEFINITION_NAME:
+    description: "Name of the Policy Definition to be remediated"
+    value: ""
+
+  POLICY_ASSIGNMENT_NAME:
+    description: "Name of the Policy Assignment to be remediated"
+    value: ""
+
+  POLICY_REMEDIATION_SCOPE:
+    description: "Specifies the scope for policy remediation. Indicates where the policy or policies requiring remediation are assigned."
+    value: "ChildManagementGroups"
+    options:
+    - "ChildManagementGroups"
+    - "ChildSubscriptions - Not Yet Implemented (NYI)"
+    - "SpecificSubscription - Not Yet Implemented (NYI)"
+
+  SCOPE_NAME:
+    description: "Identifies the name of the Management Group or Subscription that acts as a reference point for the remediation scope. Example: If POLICY_REMEDIATION_SCOPE is 'ChildManagementGroups', SCOPE_NAME might be 'so2_parent_group'."
+    value: ""
+
+# # Use variables to decide what triggers the pipeline
+# # https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
+workflow:
+  rules:
+    # https://docs.gitlab.com/ee/ci/yaml/README.html#workflowrules
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+remediate_policies:
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
+  script:
+    - git clone --branch 3.1.0 https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/azure-tools/pshelperfunctions.git
+    - pwsh -Command "& { . .\RemediatePolicies.ps1; Invoke-PolicyRemediation -AzureTenantId $AZURE_TENANT_ID -AzureClientId $AZURE_CLIENT_ID -AzureClientSecret $AZURE_CLIENT_SECRET -policyType $POLICY_TYPE -policyDefinitionName $POLICY_DEFINITION_NAME -policyAssignmentName $POLICY_ASSIGNMENT_NAME -policyRemediationScope $POLICY_REMEDIATION_SCOPE -scopeName $SCOPE_NAME }"
